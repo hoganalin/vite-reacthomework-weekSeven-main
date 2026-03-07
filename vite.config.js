@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base:
     process.env.NODE_ENV === 'production'
-      ? '/vite-reacthomework-weekSeven/'
+      ? '/vite-reacthomework-weekSeven-main/'
       : '/',
   plugins: [react()],
 });
