@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+import useMessage from '../../hooks/useMessage';
 
 // 建議將環境變數放在 import 之後
 const API_PATH = import.meta.env.VITE_API_PATH;
@@ -9,6 +10,7 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 export default function Products() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const { showError } = useMessage();
 
   //查看更多按鈕要跳轉到單一產品頁面
   const handleViewMore = (id) => {
@@ -19,9 +21,10 @@ export default function Products() {
       const res = await axios.get(`${API_BASE}/api/${API_PATH}/products/all`);
       // 建議檢查資料格式，有些 API 回傳的是 res.data 或 res.data.products
       setProducts(res.data.products);
-    } catch (error) {
+    } catch {
       // 實務上建議可以用 alert 或 toast 通知使用者
-      console.error('載入產品列表失敗', error);
+
+      showError('載入產品列表失敗');
     }
   };
 

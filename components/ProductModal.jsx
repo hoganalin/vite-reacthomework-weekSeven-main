@@ -91,15 +91,10 @@ export default function ProductModal({
     };
     try {
       const response = await axios[method](url, productData);
-      console.log(response.data);
-      // dispatch(createAsyncMessage(response.data));
       getData(); //重新更新產品列表
       closeModal(); //關閉modal
-      // alert(modalType === 'create' ? '新增產品資料成功' : '更新產品資料成功');
       dispatch(createAsyncMessage(response.data));
     } catch (error) {
-      (console.log('更新產品資料錯誤'), error.response);
-      // alert(`更新產品資料錯誤,原因是${error.response.data.message}`);
       dispatch(createAsyncMessage(error.response.data));
     }
   };
@@ -109,13 +104,11 @@ export default function ProductModal({
       const response = await axios.delete(
         `${API_BASE}/api/${API_PATH}/admin/product/${id}`
       );
-      console.log(response.data);
       getData();
       closeModal();
-      alert('刪除產品資料成功'); //顯示成功訊息
+      dispatch(createAsyncMessage(response.data));
     } catch (error) {
-      console.log('刪除產品資料錯誤', error.response);
-      alert(`刪除產品資料錯誤,原因是${error.response.data.message}`);
+      dispatch(createAsyncMessage(error.response.data.message));
       //顯示錯誤訊息
     }
   };
@@ -144,8 +137,7 @@ export default function ProductModal({
       // 上傳成功後清空，避免使用者混淆
       resetFileInput();
     } catch (error) {
-      console.log('上傳圖片錯誤', error.response);
-      alert('上傳圖片錯誤');
+      dispatch(createAsyncMessage(error.response.data));
     }
   };
   //宣告modal 的欄位綁定值

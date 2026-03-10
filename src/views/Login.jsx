@@ -5,12 +5,14 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
 import { useForm } from 'react-hook-form';
 import EmailValidation from '../utils/validation';
+import useMessage from '../hooks/useMessage';
 export default function Login({ getData, setIsAuth }) {
   // const [formData, setFormData] = useState({
   //   username: '',
   //   password: '',
   // });
   const navigate = useNavigate();
+  const { showError } = useMessage();
   //以上都不需要,要改為使用useForm
   const {
     register,
@@ -36,7 +38,7 @@ export default function Login({ getData, setIsAuth }) {
     // e.preventDefault();
     try {
       const response = await axios.post(`${API_BASE}/admin/signin`, formData);
-      console.log(response.data);
+      // console.log(response.data);
       const { token, expired } = response.data;
       //儲存token到cookie
       document.cookie = `myToken=${token};expires=${new Date(expired)}`;
@@ -48,8 +50,9 @@ export default function Login({ getData, setIsAuth }) {
       // setIsAuth(true);
       //導航頁面到後台產品列表
       navigate('/admin/product');
-    } catch (error) {
-      console.log('提交表單出錯了,error為', error);
+    } catch {
+      // console.log('提交表單出錯了,error為', error);
+      showError('提交表單失敗');
     }
   };
   return (

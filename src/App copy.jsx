@@ -8,6 +8,7 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 //引入style.css
 import './assets/style.css';
 import { set } from 'lodash';
+import useMessage from './hooks/useMessage';
 function App() {
   //建立新增產品相關Modal useRef
   let myModal = useRef();
@@ -20,7 +21,7 @@ function App() {
   });
   const [products, setProducts] = useState([]); //產品列表
   // const [tempProduct, setTempProduct] = useState(); //被選中的產品
-
+  const { showSuccess, showError } = useMessage();
   //處理modal
   useEffect(() => {
     myModal.current = new bootstrap.Modal(modalRef.current);
@@ -39,9 +40,11 @@ function App() {
       axios.defaults.headers.common['Authorization'] = token;
       getProduct(); //取的產品列表
       setAuth(true); // 切換登入狀態為 true
+      showSuccess('登入成功');
     } catch (error) {
       setAuth(false); // 切換登入狀態為 false
-      console.log('error', error.response?.data.message);
+      showError('登入失敗');
+      // console.log('error', error.response?.data.message);
     }
   };
 
@@ -52,7 +55,8 @@ function App() {
       setProducts(res.data.products);
       setPagination(res.data.pagination);
     } catch (error) {
-      console.log(error.response);
+      // console.log(error.response);
+      showError('取得產品資料錯誤');
     }
   };
 

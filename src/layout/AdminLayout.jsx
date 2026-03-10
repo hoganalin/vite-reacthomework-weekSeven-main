@@ -11,11 +11,11 @@ const AdminLayout = () => {
     try {
       const response = await axios.post(`${API_BASE}/logout`);
 
-      console.log('登出成功', response.data);
+      // console.log('登出成功', response.data);
       showSuccess('登出成功');
       navigate('/login');
     } catch (error) {
-      console.log('登出失敗', error.response);
+      // console.log('登出失敗', error.response);
       showError('登出失敗');
     }
   };

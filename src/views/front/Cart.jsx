@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router';
+import useMessage from '../../hooks/useMessage';
 
 const API_PATH = import.meta.env.VITE_API_PATH;
 const API_BASE = import.meta.env.VITE_API_BASE;
 export default function Cart() {
   const [carts, setCarts] = useState([]);
   const [total, setTotal] = useState(0);
+  const { showSuccess, showError } = useMessage();
   const getCart = async () => {
     try {
       const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
       // 處理取得的購物車資料
-      console.log('取得購物車列表', res.data);
       setCarts(res.data.data.carts);
       setTotal(res.data.data.final_total);
-    } catch (error) {
-      console.error('取得購物車資料失敗', error);
+    } catch {
+      showError('取得購物車資料失敗');
     }
   };
   useEffect(() => {
@@ -29,10 +30,11 @@ export default function Cart() {
     const clearCart = async () => {
       try {
         await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
-        alert('購物車已清空！');
+
+        showSuccess('購物車已清空！');
         setCarts([]); // 清空前端的購物車資料
-      } catch (error) {
-        console.error('清空購物車失敗', error);
+      } catch {
+        showError('清空購物車失敗');
       }
     };
     clearCart();
@@ -42,10 +44,10 @@ export default function Cart() {
     const removeItem = async () => {
       try {
         await axios.delete(`${API_BASE}/api/${API_PATH}/cart/${productId}`);
-        alert('已從購物車刪除該項目！'); // 顯示成功訊息
+        showSuccess('已從購物車刪除該項目！');
         getCart(); // 重新取得購物車資料以更新畫面
-      } catch (error) {
-        console.error('刪除購物車項目失敗', error);
+      } catch {
+        showError('刪除購物車項目失敗');
       }
     };
     removeItem();
@@ -63,10 +65,10 @@ export default function Cart() {
           },
         }
       );
-      alert('已更新購物車項目數量！'); // 顯示成功訊息
+      showSuccess('已更新購物車項目數量！');
       getCart(); // 重新取得購物車資料以更新畫面
-    } catch (error) {
-      console.error('更新購物車項目失敗', error);
+    } catch {
+      showError('更新購物車項目失敗');
     }
   };
   return (

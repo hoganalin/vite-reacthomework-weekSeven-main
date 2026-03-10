@@ -27,6 +27,7 @@ import './assets/style.css';
 import ProductModal from '../components/ProductModal';
 import Pagination from '../components/Pagination';
 import Login from './views/Login';
+import useMessage from './hooks/useMessage';
 
 function App() {
   const [isAuth, setIsAuth] = useState(false); // 登入狀態
@@ -37,6 +38,7 @@ function App() {
   const [pagination, setPagination] = useState({});
   const productModalRef = useRef(null);
   const myModal = useRef(null);
+  const { showSuccess, showError } = useMessage();
 
   //取得產品們的資料
   const getData = async (page = 1) => {
@@ -45,10 +47,11 @@ function App() {
         `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`
       );
       // console.log('產品列表載入成功', response.data);
+      showSuccess('產品列表載入成功');
       setProducts(response.data.products);
       setPagination(response.data.pagination); //也把分頁儲存
     } catch (error) {
-      console.log(`取得產品資料錯誤`, error.response?.data?.message);
+      showError('取得產品資料錯誤');
     }
   };
 
@@ -59,7 +62,7 @@ function App() {
       .split('; ')
       .find((row) => row.startsWith('myToken='))
       ?.split('=')[1];
-    console.log('目前token', token);
+    // console.log('目前token', token);
     if (!token) return;
 
     axios.defaults.headers.common.Authorization = token;
@@ -67,12 +70,11 @@ function App() {
     const checkLogin = async () => {
       try {
         const res = await axios.post(`${API_BASE}/api/user/check`);
-        console.log(res);
+        // console.log(res);
         setIsAuth(true);
         getData();
       } catch (error) {
-        alert('登入狀態已過期,請重新登入');
-        console.log('登入驗證失敗', error.response);
+        showError('登入狀態已過期,請重新登入');
       }
     };
     checkLogin();

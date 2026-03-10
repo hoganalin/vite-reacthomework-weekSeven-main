@@ -5,6 +5,7 @@ import { RotatingLines } from 'react-loader-spinner';
 import SingleProductModal from '../../../components/SingleProductModal';
 import * as bootstrap from 'bootstrap'; //因為用到bootstrap 所以需要引入
 import EmailValidation from '../../utils/validation';
+import useMessage from '../../hooks/useMessage';
 
 const API_PATH = import.meta.env.VITE_API_PATH;
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -16,6 +17,8 @@ export default function Checkout() {
   // 載入狀態
   const [loadingCartId, setLoadingCartId] = useState(null); //產品列表的產品按下去加入購物車時的loading
   const [loadingProductId, setLoadingProductId] = useState(null);
+  //
+  const { showSuccess, showError } = useMessage();
   // useRef 建立對 DOM 元素的參照
 
   const modalRef = useRef(null);
@@ -44,10 +47,11 @@ export default function Checkout() {
       const res = await axios.get(`${API_BASE}/api/${API_PATH}/products/all`);
       // 建議檢查資料格式，有些 API 回傳的是 res.data 或 res.data.products
       setProducts(res.data.products);
-      console.log('取得產品列表', res.data.products);
+      // console.log('取得產品列表', res.data.products);
     } catch (error) {
       // 實務上建議可以用 alert 或 toast 通知使用者
-      console.error('載入產品列表失敗', error);
+
+      showError('載入產品列表失敗');
     }
   };
 
@@ -58,11 +62,12 @@ export default function Checkout() {
       const response = await axios.get(
         `${API_BASE}/api/${API_PATH}/product/${id}`
       );
-      console.log('取得單一產品資料', response.data.product);
+      // console.log('取得單一產品資料', response.data.product);
       setProduct([response.data.product]); // 將單一產品資料放入 products 狀態中
       openModal(); // 開啟 Modal
     } catch (error) {
-      console.error('載入產品列表失敗', error);
+      // console.error('載入產品列表失敗', error);
+      showError('載入單一產品資訊失敗');
     } finally {
       setLoadingProductId(null); // 重置正在載入產品頁面的 ID
     }
@@ -78,7 +83,10 @@ export default function Checkout() {
   });
   // 送出form表單的處理函式
   const onSubmit = (data) => {
-    // console.log('表單資料', data);
+    if (carts.length === 0) {
+      showError('購物車為空,請選擇商品');
+      return;
+    }
 
     // 這裡可以加入送出訂單的邏輯，例如呼叫 API 將訂單資料傳到後端
     const submitOrder = async () => {
@@ -94,17 +102,15 @@ export default function Checkout() {
         },
       };
       try {
-        const res = await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
+        await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
           data: orderData.data,
         });
-        alert('訂單已送出！'); // 顯示成功訊息
-        console.log('訂單送出回應', res.data);
+        showSuccess('訂單已送出！');
         // 這裡可以加入送出訂單成功後的處理邏輯，例如清空購物車、導向訂單完成頁面等
         await getCart(); // 送出訂單後重新取得購物車資料以更新畫面
         reset(); // 重置表單
-      } catch (error) {
-        console.error('訂單送出失敗', error);
-        alert('訂單送出失敗，請稍後再試！'); // 顯示錯誤訊息
+      } catch {
+        showError('訂單送出失敗');
       }
     };
     submitOrder();
@@ -113,11 +119,12 @@ export default function Checkout() {
     try {
       const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
       // 處理取得的購物車資料
-      console.log('取得購物車列表', res.data);
+      // console.log('取得購物車列表', res.data);
       setCarts(res.data.data.carts);
       setTotal(res.data.data.final_total);
     } catch (error) {
-      console.error('取得購物車資料失敗', error);
+      // console.error('取得購物車資料失敗', error);
+      showError('取得購物車資料失敗');
     }
   };
   // 加入購物車 API
@@ -130,11 +137,12 @@ export default function Checkout() {
           qty: Number(qty),
         },
       });
-      alert('已加入購物車！');
-      console.log('加入購物車成功', res.data);
+      showSuccess('已加入購物車！');
+
       getCart(); // 加入購物車後重新取得購物車資料以更新畫面
     } catch (error) {
-      console.error('加入購物車失敗', error);
+      // console.error('加入購物車失敗', error);
+      showError('加入購物車失敗');
     } finally {
       setLoadingCartId(null); // 重置正在加入購物車的產品 ID
     }
@@ -151,10 +159,11 @@ export default function Checkout() {
     const clearCart = async () => {
       try {
         await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
-        alert('購物車已清空！');
+        showSuccess('購物車已清空！');
         setCarts([]); // 清空前端的購物車資料
       } catch (error) {
-        console.error('清空購物車失敗', error);
+        // console.error('清空購物車失敗', error);
+        showError('清空購物車失敗');
       }
     };
     clearCart();
@@ -164,10 +173,12 @@ export default function Checkout() {
     const removeItem = async () => {
       try {
         await axios.delete(`${API_BASE}/api/${API_PATH}/cart/${productId}`);
-        alert('已從購物車刪除該項目！'); // 顯示成功訊息
+        
+        showSuccess('已從購物車刪除該項目！');
         getCart(); // 重新取得購物車資料以更新畫面
       } catch (error) {
-        console.error('刪除購物車項目失敗', error);
+        // console.error('刪除購物車項目失敗', error);
+        showError('刪除購物車項目失敗');
       }
     };
     removeItem();
@@ -185,10 +196,12 @@ export default function Checkout() {
           },
         }
       );
-      alert('已更新購物車項目數量！'); // 顯示成功訊息
+
+      showSuccess('已更新購物車項目數量！');
       getCart(); // 重新取得購物車資料以更新畫面
     } catch (error) {
-      console.error('更新購物車項目失敗', error);
+      // console.error('更新購物車項目失敗', error);
+      showError('更新購物車項目失敗');
     }
   };
   return (
@@ -344,7 +357,6 @@ export default function Checkout() {
               type="email"
               className="form-control"
               placeholder="請輸入 Email"
-              defaultValue="test@gamil.com"
               {...register('email', EmailValidation)}
             />
             {errors.email && (
@@ -362,7 +374,6 @@ export default function Checkout() {
               type="text"
               className="form-control"
               placeholder="請輸入姓名"
-              defaultValue="小明"
               {...register('name', {
                 required: '姓名為必填',
                 minLength: {
@@ -386,7 +397,6 @@ export default function Checkout() {
               type="tel"
               className="form-control"
               placeholder="請輸入電話"
-              defaultValue="0912345678"
               {...register('tel', {
                 required: '電話為必填',
                 pattern: {
@@ -410,7 +420,6 @@ export default function Checkout() {
               type="text"
               className="form-control"
               placeholder="請輸入地址"
-              defaultValue="臺北市信義區信義路5段7號"
               {...register('address', {
                 required: '地址為必填',
               })}

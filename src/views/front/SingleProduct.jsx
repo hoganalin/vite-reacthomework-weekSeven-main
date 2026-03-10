@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router';
+import useMessage from '../../hooks/useMessage';
 
 const API_PATH = import.meta.env.VITE_API_PATH;
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -10,6 +11,7 @@ export default function SingleProduct() {
   const [singleProduct, setSingleProduct] = useState(null);
   const [qty, setQty] = useState(1); // 管理購買數量
   const [isLoading, setIsLoading] = useState(true);
+  const { showSuccess, showError } = useMessage();
 
   // 取得單一產品 API
   useEffect(() => {
@@ -21,7 +23,8 @@ export default function SingleProduct() {
         );
         setSingleProduct(res.data.product);
       } catch (error) {
-        console.error('取得單一產品資料失敗', error);
+        // console.error('取得單一產品資料失敗', error);
+        showError('取得單一產品資料失敗');
       } finally {
         setIsLoading(false);
       }
@@ -38,10 +41,10 @@ export default function SingleProduct() {
           qty: Number(qty),
         },
       });
-      alert('已加入購物車！');
-      console.log('加入購物車成功', res.data);
+
+      showSuccess('已加入購物車！');
     } catch (error) {
-      console.error('加入購物車失敗', error);
+      showError('加入購物車失敗');
     }
   };
 

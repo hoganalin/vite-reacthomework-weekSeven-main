@@ -32,7 +32,7 @@ import useMessage from '../../hooks/useMessage';
 
 function AdminProducts() {
   // const dispatch = useDispatch();
-  const { showSuccess, showError } = useMessage();
+  const { showError } = useMessage();
   // const [isAuth, setIsAuth] = useState(false); // 登入狀態
 
   const [products, setProducts] = useState([]); //產品列data
@@ -51,10 +51,9 @@ function AdminProducts() {
       // console.log('產品列表載入成功', response.data);
       setProducts(response.data.products);
       setPagination(response.data.pagination); //也把分頁儲存
-      console.log('取的產品資料成功');
-      showSuccess('產品列表載入成功');
-    } catch (error) {
-      console.log(`取得產品資料錯誤`, error.response?.data?.message);
+      // console.log('取的產品資料成功');
+    } catch {
+      // console.log(`取得產品資料錯誤`, error.response?.data?.message);
       // dispatch(createAsyncMessage(error.response?.data));
       showError('取得產品資料錯誤');
     }
