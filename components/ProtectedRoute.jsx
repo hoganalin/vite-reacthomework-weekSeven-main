@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { RotatingLines, RotatingTriangles } from 'react-loader-spinner';
+import { RotatingTriangles } from 'react-loader-spinner';
 const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router';
-import { useMessage } from '../hooks/useMessage';
+import useMessage from '../src/hooks/useMessage';
 function ProtectedRoute({ children }) {
   //以下都是從 adminProduct copy過來
   const [isAuth, setIsAuth] = useState(false);
@@ -27,7 +26,7 @@ function ProtectedRoute({ children }) {
         const res = await axios.post(`${API_BASE}/api/user/check`);
         // console.log(res);
         setIsAuth(true);
-      } catch (error) {
+      } catch {
         showError('登入狀態已過期,請重新登入');
       } finally {
         setLoading(false);
